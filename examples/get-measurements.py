@@ -4,7 +4,7 @@ from ina220 import INA220
 import time
 
 
-ina220 = INA220()
+ina220 = INA220(i2c_dev="1")
 
 
 ina220.set_bus_voltage_range(0)

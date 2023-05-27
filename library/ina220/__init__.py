@@ -41,9 +41,12 @@ class INA220:
         self._i2c_dev = i2c_dev
         self._is_setup = False
 
-        self.shunt_resistor_value = 0.005  # value in ohms
+        self.shunt_resistor_value = 0.002  # value in ohms
+
+        # This might be wrong, but it's what the original library used
         self.shunt_voltage_lsb = 0.00001   # 10 uV per LSB
-        self.bus_voltage_lsb = 0.004       # 4mV per LSB
+        self.bus_voltage_lsb = 0.01       
+
 
         self._ina220 = Device([self._i2c_addr], i2c_dev=self._i2c_dev, bit_width=8, registers=(
             Register('CONFIG', 0x00, fields=(
@@ -89,7 +92,7 @@ class INA220:
                 BitField('reading', 0xFFFF),
             ), bit_width=16, read_only=True),
 
-            Register('CALIBARTION', 0x05, fields=(
+            Register('CALIBRATION', 0x05, fields=(
                 BitField('reading', 0xFFFF),
             ), bit_width=16, read_only=True),
         ))
@@ -121,10 +124,6 @@ class INA220:
         """Gets current calculation from the INA220."""
         return self._ina220.get('CURRENT').reading
 
-    def get_voltage(self):
-        """Gets voltage from the INA220."""
-        return self._ina220.get('VOLTAGE').reading
-
     def get_measurements(self):
         shunt_voltage = self.get_shunt_voltage()
         bus_voltage = self.get_bus_voltage()
@@ -137,4 +136,7 @@ if __name__ == "__main__":
     import smbus
 
     bus = smbus.SMBus(1)
-    pmic = INA220(i2c_dev=bus)
+    pmic = INA220(i2c_addr=0x41, i2c_dev=bus)
+    print(pmic.get_bus_voltage())
+    print(pmic.get_measurements())
+
